@@ -19,28 +19,32 @@ public class Solution91 {
         int[] res = new int[c.length];
         int value = Character.getNumericValue(c[0]);
         if (value == 0) {
-            res[0] = 0;
-        } else {
-            res[0] = 1;
+            return 0;
         }
+        res[0] = 1;
         value = Character.getNumericValue(c[1]);
         if (value == 0) {
-            res[1] = 0;
+            if (!seq(c, 1)) {
+                return 0;
+            }
+            res[1] = 1;
+        } else if (seq(c, 1)){
+                res[1] = 2;
         } else {
             res[1] = 1;
         }
-        System.out.println(res[1]);
-        if (seq(c, 1)) {
-            res[1]++;
-            //System.out.println(res[1]);
-        }
         for (int i = 2; i < c.length; i++) {
-            if (seq(c, i)) {
-                res[i] = res[i - 2] + res[i - 1];
+            value = Character.getNumericValue(c[i]);
+            if (value == 0) {
+                if (!seq(c, i)) {
+                    return 0;
+                }
+                res[i] = res[i - 2];
             } else {
-                res[i] = res[i - 1];
-                if (res[i] == 0 && Character.getNumericValue(c[i]) != 0) {
-                    res[i]++;
+                if (seq(c, i)) {
+                    res[i] = res[i - 1] + res[i - 2];
+                }  else {
+                    res[i] = res[i - 1];
                 }
             }
         }
@@ -59,6 +63,6 @@ public class Solution91 {
 
     public static void main(String[] args) {
         Solution91 s = new Solution91();
-        s.numDecodings("01");
+        System.out.println(s.numDecodings("01"));
     }
 }
