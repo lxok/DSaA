@@ -11,16 +11,49 @@ public class Solution128 {
         if (nums == null || nums.length == 0) {
             return 0;
         }
-        Map<Integer, Integer> map = new HashMap<>(nums.length);
-        int max = Integer.MIN_VALUE;
-        for (int i = 0; i < nums.length; i++) {
-            int val = nums[i];
-            int p = val - 1;
-            int n = val + 1;
-            if (map.containsKey(p) && map.get(p) <= p) {
-                
+        int len = nums.length;
+        Map<Integer, Integer> up = new HashMap<>(len);
+        Map<Integer, Integer> down = new HashMap<>(len);
+        int max = 1;
+        int val;
+        for (int i = 0; i < len; i++) {
+            val = nums[i];
+            if (up.containsKey(val)) {
+                continue;
+            }
+            int pri = val - 1;
+            int next = val + 1;
+            int range = 1;
+            up.put(val, val);
+            down.put(val, val);
+            int nextRange;
+            int priRange;
+            if (up.containsKey(next)) {
+                nextRange = up.get(next);
+                up.put(val, nextRange);
+                range += nextRange - val;
+            }
+            if (down.containsKey(pri)) {
+                priRange = down.get(pri);
+                down.put(val, priRange);
+                range += val - priRange;
+            }
+            if (range > max) {
+                max = range;
+            }
+
+            //modify
+            if (up.containsKey(next)) {
+                nextRange = up.get(val);
+                down.put(nextRange, Math.min(down.get(val), down.get(nextRange)));
+                down.put(next, Math.min(down.get(val), down.get(next)));
+            }
+            if (down.containsKey(pri)) {
+                priRange = down.get(val);
+                up.put(priRange, Math.max(up.get(val), up.get(priRange)));
+                up.put(pri, Math.max(up.get(val), up.get(pri)));
             }
         }
-        return -1;
+        return max;
     }
 }

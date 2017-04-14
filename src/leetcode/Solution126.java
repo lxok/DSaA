@@ -1,57 +1,110 @@
 package leetcode;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by nick on 2017/3/19.
  */
+/**
+ * 这个题大数据测试过不了
+ * 使用BFS, 并用数组过滤元素
+ */
 public class Solution126 {
+    public static class NumId {
+        int value;
+        int pri;
+
+        public NumId(int value, int pri) {
+            this.value = value;
+            this.pri = pri;
+        }
+    }
+
     public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
         List<List<String>> res = new ArrayList<>();
         int len = wordList.size();
-        onePath = new int[len][len];
-        for (int i = 0; i < len; i++) {
-            for (int j = i; j < len; j++) {
-                if (ifOnePath(wordList.get(i), wordList.get(j))) {
-                    onePath[i][j] = 1;
-                    onePath[j][i] = 1;
-                } else {
-                    onePath[i][j] = 0;
-                    onePath[j][i] = 0;
-                }
-            }
-        }
-        int endWordIndex = Integer.MAX_VALUE;
+        int endWordValue = -1;
+        int beginWordValue = -1;
+
         for (int i = 0; i < len; i++) {
             if (wordList.get(i).equals(endWord)) {
-                endWordIndex = i;
+                endWordValue = i;
+            }
+            if (wordList.get(i).equals(beginWord)) {
+                beginWordValue = i;
             }
         }
-        if (endWordIndex == Integer.MAX_VALUE) {
+
+        Queue<Integer> que = new LinkedList<>();
+        boolean[] used = new boolean[len];
+        for (int i = 0; i < len; i++) {
+            used[i] = false;
+        }
+        if (beginWordValue != -1) {
+            used[beginWordValue] = true;
+        }
+        if (endWordValue == -1) {
             return res;
         }
-        List<List<Integer>> resInt = new ArrayList<>();
-        List<Integer> tmp = new ArrayList<>();
+        List<List<NumId>> pri = new ArrayList<>();
+        List<NumId> list = new ArrayList<>();
+        boolean find = false;
         for (int i = 0; i < len; i++) {
             if (ifOnePath(beginWord, wordList.get(i))) {
-                tmp.add(i);
-                dfs(resInt, wordList, tmp, endWordIndex);
-                tmp.remove(tmp.size() - 1);
+                que.offer(i);
+                list.add(new NumId(i, -1));
+                used[i] = true;
+                if (i == endWordValue) {
+                    find = true;
+                }
             }
         }
-        if (min == Integer.MAX_VALUE) {
+        pri.add(list);
+        while (!find && !que.isEmpty()) {
+            List<NumId> tmpList = new ArrayList<>();
+            int queSize = que.size();
+            for (int i = 0; i < queSize; i++) {
+                int index = que.poll();
+                for (int j = 0; j < len; j++) {
+                    if (ifOnePath(wordList.get(index), wordList.get(j)) && !used[j]) {
+                        que.offer(j);
+                        tmpList.add(new NumId(j, i));
+                        if (j == endWordValue) {
+                            find = true;
+                        }
+                    }
+                }
+            }
+            pri.add(tmpList);
+            if (find) {
+                break;
+            }
+            for (int i = 0; i < tmpList.size(); i++) {
+                used[tmpList.get(i).value] = true;
+            }
+        }
+
+        List<NumId> last = pri.get(pri.size() - 1);
+        if (last == null) {
             return res;
         }
-        for (int i = 0; i < resInt.size(); i++) {
-            if (resInt.get(i).size() == min) {
-                List<String> listS = new ArrayList<>();
-                listS.add(beginWord);
-                for (int j = 0; j < min; j++) {
-                    listS.add(wordList.get(resInt.get(i).get(j)));
+        for (int i = 0; i < last.size(); i++) {
+            if (last.get(i).value == endWordValue) {
+                List<Integer> l = new ArrayList<>();
+                int j = pri.size() - 1;
+                int p = last.get(i).pri;
+                while (j >= 1) {
+                    List<NumId> tmpList = pri.get(--j);
+                    l.add(tmpList.get(p).value);
+                    p = tmpList.get(p).pri;
                 }
-                res.add(listS);
+                List<String> resList = new ArrayList<>();
+                resList.add(beginWord);
+                for (int k = l.size() - 1; k >= 0; k--) {
+                    resList.add(wordList.get(l.get(k)));
+                }
+                resList.add(endWord);
+                res.add(resList);
             }
         }
         return res;
@@ -65,6 +118,9 @@ public class Solution126 {
         for (int i = 0; i < s1.length(); i++) {
             if (s1.charAt(i) != s2.charAt(i)) {
                 match++;
+                if (match >= 2) {
+                    return false;
+                }
             }
         }
         if (match == 1) {
@@ -73,48 +129,14 @@ public class Solution126 {
         return false;
     }
 
-    int min = Integer.MAX_VALUE;
-    int[][] onePath;
-
-    public void dfs(List<List<Integer>> res, List<String> wordList, List<Integer> list, int endWordIndex) {
-        if (list.size() > min) {
-            return;
-        }
-        if (list.get(list.size() - 1) == endWordIndex) {
-            List<Integer> tmp = new ArrayList();
-            tmp.addAll(list);
-            res.add(tmp);
-            if (list.size() < min) {
-                min = list.size();
-            }
-            return;
-        }
-        if (list.size() == wordList.size()) {
-            return;
-        }
-
-        int index = list.get(list.size() - 1);
-        for (int i = 0; i < wordList.size(); i++) {
-            int val = onePath[index][i];
-            if (val == 1 && !list.contains(i)) {
-                list.add(i);
-                dfs(res, wordList, list, endWordIndex);
-                list.remove(list.size() - 1);
-            }
-        }
-    }
-
     public static void main(String[] args) {
         Solution126 s = new Solution126();
-        String beginWord = "hit";
-        String endWord = "cog";
+        String beginWord = "a";
+        String endWord = "c";
         List<String> wordList = new ArrayList<>();
-        wordList.add("hot");
-        wordList.add("dot");
-        wordList.add("dog");
-        wordList.add("lot");
-        wordList.add("log");
-        wordList.add("cog");
+        wordList.add("a");
+        wordList.add("b");
+        wordList.add("c");
         s.findLadders(beginWord, endWord, wordList);
     }
 }
