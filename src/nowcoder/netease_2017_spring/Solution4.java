@@ -34,6 +34,6 @@ public class Solution4 {
                 res = res + seq[i] + " ";
             }
         }
-        System.out.println(res);
+        System.out.println(res.trim());
     }
 }

@@ -1,19 +1,41 @@
 package test;
 
+import com.sun.xml.internal.org.jvnet.fastinfoset.EncodingAlgorithmException;
+
 /**
  * Created by nick on 2017/4/7.
  */
 public class Test {
-    public final void method1() {
 
+    static void testStatic() {
+        System.out.println("father's static method");
     }
 
-    public final void method1(int x) {
+    {
+        method();
+    }
 
+    public void method() {
+        System.out.println("father's method");
     }
 
     public static void main(String[] args) {
-        Test t = new Test();
-        t.method1(3);
+        TestSon ts = new TestSon();
+        ts.method();
     }
 }
+
+class TestSon extends Test {
+    {
+        testStatic();
+    }
+
+    static void testStatic() {
+        System.out.println("son's static method");
+    }
+
+    public void method() {
+        System.out.println("son's method");
+    }
+}
+

@@ -4,7 +4,6 @@ package nowcoder.netease_2017_spring;
  * Created by nick on 2017/4/6.
  */
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -14,6 +13,8 @@ import java.util.Scanner;
  现在需要设计一个方案让CPU处理完这批任务所需的时间最少，求这个最小的时间。
 
  多机调度问题
+
+ 双机调度问题，01背包问题
  */
 
 public class Solution1 {
@@ -21,19 +22,18 @@ public class Solution1 {
         Scanner s = new Scanner(System.in);
         int n = Integer.parseInt(s.nextLine());
         int[] length = new int[n];
+        int sum = 0;
         for (int i = 0; i < n; i++) {
-            length[i] = s.nextInt();
+            length[i] = s.nextInt() / 1024;
+            sum += length[i];
         }
-        Arrays.sort(length);
-        int sum1 = 0;
-        int sum2 = 0;
-        for (int i = n - 1; i >= 0; i--) {
-            if (sum1 <= sum2) {
-                sum1 += length[i];
-            } else {
-                sum2 += length[i];
+        int half = sum / 2;
+        int[] dp = new int[half + 1];
+        for (int i = 0; i < n; i++) {
+            for (int j = half; j >= length[i]; j--) {
+                dp[j] = Math.max(dp[j], dp[j - length[i]] + length[i]);
             }
         }
-        System.out.println(Math.max(sum1, sum2));
+        System.out.println((sum - dp[half]) * 1024);
     }
 }

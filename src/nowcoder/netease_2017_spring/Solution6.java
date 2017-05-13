@@ -42,7 +42,6 @@ public class Solution6 {
     }
 
     public static void dfs(int workIndex, int[][] work, int[] ass) {
-        System.out.println("work Index:" + workIndex);
         if (workIndex == 5) {
             for (int i = 0; i < work.length; i++) {
                 if (work[i][5] == 1) {
